@@ -8,6 +8,6 @@ namespace PurchaseApp.API.Dtos
         public decimal Price { get; set; }
         public Guid ProductId { get; set; }
         public Guid CustomerId { get; set; }
-        public bool WasShipped { get; set; }
+        public ShippingInformationDto ShippingInformation { get; set; }
     }
 }

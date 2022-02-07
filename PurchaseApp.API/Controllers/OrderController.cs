@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PurchaseApp.API.Dtos;
+using PurchaseApp.API.Services.Order;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PurchaseApp.API.Controllers
 {
@@ -14,10 +16,12 @@ namespace PurchaseApp.API.Controllers
         private readonly ConcurrentDictionary<Guid, OrderDto> _orders = new();
 
         private readonly ILogger<OrderController> _logger;
+        private readonly IOrderPublisher _orderPublisher;
 
-        public OrderController(ILogger<OrderController> logger)
+        public OrderController(ILogger<OrderController> logger, IOrderPublisher orderPublisher)
         {
             _logger = logger;
+            _orderPublisher = orderPublisher;
         }
 
         [HttpGet("{id}")]
@@ -32,11 +36,12 @@ namespace PurchaseApp.API.Controllers
         }
 
         [HttpPost]
-        public OperationResult<OrderDto> CreateOrder(OrderDto order)
+        public async Task<OperationResult<OrderDto>> CreateOrder(OrderDto order)
         {
             if(_orders.TryAdd(order.Id, order))
             {
-                return new OperationResult<OrderDto>(true, order, string.Empty);
+                OperationResult publishOperation = await _orderPublisher.CreateOrder(order);
+                return new OperationResult<OrderDto>(publishOperation.WasSuccess, order, publishOperation.ErrorMessage);
             }
 
             return new OperationResult<OrderDto>(false, null, "already exists");

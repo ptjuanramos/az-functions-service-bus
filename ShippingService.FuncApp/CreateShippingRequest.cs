@@ -2,12 +2,12 @@ using System;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
-namespace GeneralLedgerService.FuncApp
+namespace ShippingService.FuncApp
 {
-    public static class Function1
+    public static class CreateShippingRequest
     {
-        [Function("CreateReport")]
-        public static void Run([ServiceBusTrigger("ordercreated", "generalledger", Connection = "")] string mySbMsg, FunctionContext context)
+        [Function("CreateShippingRequest")]
+        public static void Run([ServiceBusTrigger("ordercreated", "shipping", Connection = "OrderServiceBus")] string mySbMsg, FunctionContext context)
         {
             var logger = context.GetLogger("Function1");
             logger.LogInformation($"C# ServiceBus topic trigger function processed message: {mySbMsg}");
